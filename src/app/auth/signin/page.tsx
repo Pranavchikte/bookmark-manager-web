@@ -8,6 +8,7 @@ import * as z from "zod";
 import api from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react"; // 1. Import the loading icon
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +47,9 @@ export default function SignInPage() {
       password: "",
     },
   });
+  
+  // 2. Get the isSubmitting state from the form hook
+  const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -61,7 +65,6 @@ export default function SignInPage() {
     } catch (error: any) {
       console.error("Login failed:", error);
       
-      // Show an actionable toast for incorrect credentials
       if (error.response?.status === 401) {
         toast.error("Invalid email or password.", {
           action: {
@@ -111,7 +114,13 @@ export default function SignInPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Sign In</Button>
+              {/* 3. Update the button to be disabled and show the spinner */}
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Sign In
+              </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">

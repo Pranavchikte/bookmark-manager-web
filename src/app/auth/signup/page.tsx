@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // 1. Import the router
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react"; // 1. Import the loading icon
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +36,7 @@ const formSchema = z.object({
 });
 
 export default function SignUpPage() {
-  const router = useRouter(); // 2. Initialize the router
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,23 +46,24 @@ export default function SignUpPage() {
     },
   });
 
+  // 2. Get the isSubmitting state from the form hook
+  const { isSubmitting } = form.formState;
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await api.post("/auth/register", values);
 
-      // 3. On success, show a helpful toast and redirect
       toast.success("Account created successfully!", {
         description: "Redirecting you to the sign-in page...",
       });
 
       setTimeout(() => {
         router.push("/auth/signin");
-      }, 2000); // Wait 2 seconds before redirecting
+      }, 2000);
 
     } catch (error: any) {
       console.error("Registration failed:", error);
       
-      // 4. On failure, check for a 409 error and show an actionable toast
       if (error.response?.status === 409) {
         toast.error("Email already exists.", {
           action: {
@@ -111,7 +113,13 @@ export default function SignUpPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Sign Up</Button>
+              {/* 3. Update the button to be disabled and show the spinner */}
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Sign Up
+              </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">

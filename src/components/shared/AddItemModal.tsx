@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react"; // 1. Import the loading icon
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -62,6 +63,9 @@ export default function AddItemModal({ itemToEdit, onSuccess, triggerButton }: A
     },
   });
 
+  // 2. Get the isSubmitting state from the form hook
+  const { isSubmitting } = form.formState;
+
   useEffect(() => {
     const defaultVals = {
       title: "", item_type: "bookmark" as const, content: "", tags: "",
@@ -108,10 +112,7 @@ export default function AddItemModal({ itemToEdit, onSuccess, triggerButton }: A
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Fields for Title, Content, and Tags (these are correct) */}
             <FormField control={form.control} name="title" render={({ field }) => ( <FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g., React Docs" {...field} /></FormControl><FormMessage /></FormItem> )} />
-            
-            {/* THIS IS THE CORRECTED SELECT FIELD STRUCTURE */}
             <FormField
               control={form.control}
               name="item_type"
@@ -120,9 +121,7 @@ export default function AddItemModal({ itemToEdit, onSuccess, triggerButton }: A
                   <FormLabel>Type</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an item type" />
-                      </SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Select an item type" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="bookmark">Bookmark</SelectItem>
@@ -134,11 +133,16 @@ export default function AddItemModal({ itemToEdit, onSuccess, triggerButton }: A
                 </FormItem>
               )}
             />
-
             <FormField control={form.control} name="content" render={({ field }) => ( <FormItem><FormLabel>Content</FormLabel><FormControl><Input placeholder="e.g., https://react.dev" {...field} /></FormControl><FormMessage /></FormItem> )} />
             <FormField control={form.control} name="tags" render={({ field }) => ( <FormItem><FormLabel>Tags (comma separated)</FormLabel><FormControl><Input placeholder="e.g., react, javascript, webdev" {...field} /></FormControl><FormMessage /></FormItem> )} />
             
-            <Button type="submit">Save Item</Button>
+            {/* 3. Update the button to be disabled and show the spinner */}
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Save Item
+            </Button>
           </form>
         </Form>
       </DialogContent>
