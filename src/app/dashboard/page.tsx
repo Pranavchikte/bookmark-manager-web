@@ -74,7 +74,9 @@ export default function DashboardPage() {
       await api.delete(`/items/${itemId}`);
       setItems(items.filter((item) => item.id !== itemId));
       toast.success("Item deleted successfully.");
-    } catch (error) {
+    } catch (_error) { // <-- FIX: Renamed 'error' to '_error'
+      // The underscore tells TypeScript we know this variable is unused.
+      console.error("Failed to delete item:", _error);
       toast.error("Failed to delete item.");
     }
   };

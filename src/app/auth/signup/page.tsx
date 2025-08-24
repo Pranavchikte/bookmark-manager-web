@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react"; // 1. Import the loading icon
+import { Loader2 } from "lucide-react";
+import { AxiosError } from "axios"; // 1. Import AxiosError
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,7 +47,6 @@ export default function SignUpPage() {
     },
   });
 
-  // 2. Get the isSubmitting state from the form hook
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -61,7 +61,9 @@ export default function SignUpPage() {
         router.push("/auth/signin");
       }, 2000);
 
-    } catch (error: any) {
+    } catch (e: unknown) { // 2. Catch error as 'unknown'
+      const error = e as AxiosError<{ error: string }>; // 3. Assert the type
+
       console.error("Registration failed:", error);
       
       if (error.response?.status === 409) {
@@ -113,7 +115,6 @@ export default function SignUpPage() {
                   </FormItem>
                 )}
               />
-              {/* 3. Update the button to be disabled and show the spinner */}
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
