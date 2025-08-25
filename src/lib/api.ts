@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "@/stores/authStore";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 // Request Interceptor: Adds the access token to every outgoing request
